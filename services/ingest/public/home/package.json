@@ -1,0 +1,14 @@
+{
+  "name": "qiye-home",
+  "private": true,
+  "version": "0.2.0",
+  "description": "栖页新标签页的 Web 同步产物",
+  "scripts": {
+    "test": "node ../../../../scripts/sync-newtab-home.mjs --check && npm run validate",
+    "validate": "node scripts/validate.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,24 @@
+.DS_Store
+.env
+*.log
+
+node_modules/
+dist/
+coverage/
+
+ops/user-data/config-backups/
+ops/dashy/config-backups/
+ops/data/
+ops/backups/
+services/ingest/data/
+
+# Local history, migration input, and release artifacts
+.local-development-notes/
+ops/dashy/conf.yml
+releases/
+*.tar
+*.tar.gz
+*.oci.tar
+*.zip
+*.pem
+*.key

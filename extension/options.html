@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <title>栖页扩展设置</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand">
+          <img class="brand-mark" src="assets/brand-mark.svg" alt="">
+          <div>
+            <strong>栖页</strong>
+            <span>导航收藏扩展</span>
+          </div>
+        </div>
+        <nav aria-label="设置分区">
+          <a class="nav-item active" href="#connection">连接与收藏</a>
+          <a class="nav-item" href="#sync">自动同步</a>
+          <a class="nav-item" href="#newtab">新标签页</a>
+          <a class="nav-item" href="#bookmark-import">导入 Chrome 书签</a>
+          <a class="nav-item" href="#queue-section">待同步队列</a>
+        </nav>
+        <p class="privacy-note">令牌仅保存在这台浏览器的扩展本地空间中，不会参与 Chrome 同步。</p>
+      </aside>
+
+      <main class="content">
+        <header class="page-header">
+          <div>
+            <h1>扩展设置</h1>
+            <p>连接你的 Nav Ingest 服务，并决定哪些收藏动作自动同步。</p>
+          </div>
+          <span id="save-indicator" class="save-indicator">尚未修改</span>
+        </header>
+
+        <form id="settings-form">
+          <section id="connection" class="section">
+            <div class="section-heading">
+              <div>
+                <h2>连接与收藏</h2>
+                <p>扩展只申请下方服务地址的访问权限。</p>
+              </div>
+              <span id="api-permission" class="permission-badge pending">检查中</span>
+            </div>
+
+            <div class="fields">
+              <div class="field full">
+                <label for="api-base-url">Nav Ingest API 地址</label>
+                <input id="api-base-url" name="apiBaseUrl" type="url" inputmode="url" required aria-describedby="api-help api-error">
+                <p id="api-help" class="helper">示例：http://192.168.1.10:8787 或 https://nav.example.com</p>
+                <p id="api-error" class="field-error" role="alert"></p>
+              </div>
+
+              <div class="field full">
+                <label for="token">设备令牌</label>
+                <div class="password-wrap">
+                  <input id="token" name="token" type="password" autocomplete="off" spellcheck="false" aria-describedby="token-help">
+                  <button id="toggle-token" class="field-action" type="button" aria-label="显示令牌">显示</button>
+                </div>
+                <p id="token-help" class="helper">建议使用仅含 bookmarks:write 与 groups:read 权限的设备令牌。</p>
+              </div>
+
+              <div class="field">
+                <label for="default-group">默认分组</label>
+                <select id="default-group" name="defaultGroupId" required>
+                  <option value="">正在读取分组…</option>
+                </select>
+                <p class="helper">未选择分组时，新收藏会进入这里。</p>
+              </div>
+            </div>
+
+            <div class="section-actions">
+              <button id="test-connection" class="secondary-button" type="button">测试连接</button>
+              <button class="primary-button" type="submit">保存设置</button>
+            </div>
+            <div id="connection-result" class="inline-result" role="status" aria-live="polite"></div>
+          </section>
+
+          <section id="sync" class="section">
+            <div class="section-heading compact">
+              <div>
+                <h2>Chrome 新书签自动同步</h2>
+                <p>点击 Chrome 星标创建书签后，自动发送到默认分组。</p>
+              </div>
+              <span id="bookmark-permission" class="permission-badge">未启用</span>
+            </div>
+
+            <label class="switch-row" for="auto-sync">
+              <span>
+                <strong>监听新建书签</strong>
+                <small>启用时才会申请 Chrome 的 bookmarks 可选权限。</small>
+              </span>
+              <span class="switch-control">
+                <input id="auto-sync" name="autoSyncBookmarks" type="checkbox">
+                <i aria-hidden="true"></i>
+              </span>
+            </label>
+
+            <div class="callout">
+              <strong>权限说明</strong>
+              <p>Chrome 不提供“点击已有书签”的事件，因此扩展只监听新建动作；工具栏、右键菜单和快捷键始终可用。</p>
+            </div>
+          </section>
+
+          <section id="newtab" class="section">
+            <div class="section-heading compact">
+              <div>
+                <h2>新标签页</h2>
+                <p>可选地把浏览器新标签页变成栖页仪表盘。</p>
+              </div>
+              <span id="newtab-permission" class="permission-badge">默认关闭</span>
+            </div>
+
+            <label class="switch-row" for="new-tab-enabled">
+              <span>
+                <strong>接管新标签页</strong>
+                <small>默认关闭；关闭时新标签页恢复 Chrome 默认行为。常用与最近访问只保存在本机。</small>
+              </span>
+              <span class="switch-control">
+                <input id="new-tab-enabled" name="newTabEnabled" type="checkbox">
+                <i aria-hidden="true"></i>
+              </span>
+            </label>
+
+            <div class="callout">
+              <strong>说明</strong>
+              <p>开启后每个新标签页都会显示栖页仪表盘，需要 API 地址已授权；保存后新标签页立即生效。仪表盘内的点击记录、常用和最近访问只保存在当前浏览器，可在新标签页右上角设置中关闭或清空。</p>
+            </div>
+          </section>
+        </form>
+
+        <section id="bookmark-import" class="section import-section">
+          <div class="section-heading compact">
+            <div>
+              <h2>导入 Chrome 书签</h2>
+              <p>先在本地读取并预览，确认后才会分批上传；关闭设置页也能继续。</p>
+            </div>
+            <span id="import-state-badge" class="permission-badge">未读取</span>
+          </div>
+
+          <div id="import-empty" class="import-empty">
+            <div class="import-intro-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div>
+              <strong>把现有收藏整理到栖页</strong>
+              <p>仅在你点击后申请书签权限。Chrome 系统根目录不会成为分组，用户文件夹会保留完整层级。</p>
+            </div>
+            <button id="read-bookmarks" class="primary-button" type="button">授权并读取</button>
+          </div>
+
+          <div id="import-preview" class="import-preview" hidden>
+            <div class="import-fields">
+              <div class="field">
+                <label for="import-source">导入范围</label>
+                <select id="import-source"></select>
+                <p class="helper">可导入全部书签，或只选一个文件夹子树。</p>
+              </div>
+              <div class="field">
+                <label for="import-default-group">无文件夹书签的默认分组</label>
+                <select id="import-default-group" required>
+                  <option value="">正在读取分组…</option>
+                </select>
+                <p class="helper">只影响直接位于系统根目录下的书签。</p>
+              </div>
+            </div>
+
+            <div class="import-metrics" aria-label="导入预览统计">
+              <div><strong id="import-total-count">0</strong><span>范围内总数</span></div>
+              <div><strong id="import-bookmark-count">0</strong><span>可导入书签</span></div>
+              <div><strong id="import-group-count">0</strong><span>用户文件夹</span></div>
+              <button id="import-loose-detail-toggle" class="import-metric-detail" type="button" aria-expanded="false" aria-controls="import-detail-panel">
+                <strong id="import-loose-count">0</strong><span>进入默认组 <i aria-hidden="true">⌄</i></span>
+              </button>
+              <div><strong id="import-batch-count">0</strong><span>上传批次</span></div>
+              <button id="import-skip-detail-toggle" class="import-metric-detail" type="button" aria-expanded="false" aria-controls="import-detail-panel">
+                <strong id="import-skip-count">0</strong><span>跳过非网页 <i aria-hidden="true">⌄</i></span>
+              </button>
+            </div>
+
+            <section id="import-detail-panel" class="import-detail-panel" aria-labelledby="import-detail-title" hidden>
+              <header>
+                <div>
+                  <span id="import-detail-eyebrow">预览明细</span>
+                  <strong id="import-detail-title">进入默认组</strong>
+                </div>
+                <button id="close-import-detail" class="text-button" type="button">收起</button>
+              </header>
+              <div id="import-detail-list" class="import-detail-list"></div>
+              <button id="load-more-import-detail" class="secondary-button import-detail-more" type="button" hidden>继续显示</button>
+            </section>
+
+            <div class="import-group-preview">
+              <span>将创建或复用的分组</span>
+              <div id="import-group-chips" class="import-group-chips"></div>
+            </div>
+
+            <label class="import-confirm" for="import-confirm">
+              <input id="import-confirm" type="checkbox">
+              <span>我已核对范围，确认将以上书签发送到当前 Nav Ingest 服务。</span>
+            </label>
+            <div class="section-actions import-actions">
+              <button id="refresh-import-preview" class="secondary-button" type="button">重新读取</button>
+              <button id="start-bookmark-import" class="primary-button" type="button" disabled>确认并开始导入</button>
+            </div>
+          </div>
+
+          <div id="import-task" class="import-task" hidden>
+            <div class="import-task-head">
+              <div>
+                <span id="import-task-eyebrow">导入任务</span>
+                <strong id="import-task-title">正在准备</strong>
+              </div>
+              <span id="import-progress-label">0 / 0 批</span>
+            </div>
+            <div class="progress-track" role="progressbar" aria-label="书签导入进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <span id="import-progress-bar"></span>
+            </div>
+            <div class="import-result-grid" aria-label="导入结果统计">
+              <div><strong id="import-created-count">0</strong><span>已新增</span></div>
+              <div><strong id="import-duplicate-count">0</strong><span>已存在</span></div>
+              <div><strong id="import-invalid-count">0</strong><span>无效</span></div>
+              <div><strong id="import-failed-count">0</strong><span>失败</span></div>
+            </div>
+            <div id="import-task-error" class="import-task-error" role="alert" hidden></div>
+            <p id="import-task-note" class="import-task-note"></p>
+            <div class="queue-actions import-task-actions">
+              <button id="resume-bookmark-import" class="secondary-button" type="button" hidden>继续导入</button>
+              <button id="cancel-bookmark-import" class="text-button danger" type="button">取消任务</button>
+              <button id="new-bookmark-import" class="secondary-button" type="button" hidden>开始新的导入</button>
+            </div>
+          </div>
+          <div id="import-result" class="inline-result" role="status" aria-live="polite"></div>
+        </section>
+
+        <section id="queue-section" class="section">
+          <div class="section-heading compact">
+            <div>
+              <h2>待同步队列</h2>
+              <p>断网或服务暂时不可用时，收藏会保留在本地并自动重试。</p>
+            </div>
+            <span id="queue-count" class="queue-count">0 条</span>
+          </div>
+
+          <div id="queue-state" class="queue-state">
+            <span class="queue-symbol" aria-hidden="true">✓</span>
+            <div>
+              <strong>队列为空</strong>
+              <p>所有收藏都已同步。</p>
+            </div>
+          </div>
+          <div class="queue-actions">
+            <button id="retry-queue" class="secondary-button" type="button">立即重试</button>
+            <button id="clear-queue" class="text-button danger" type="button">清空队列</button>
+          </div>
+        </section>
+
+        <footer class="page-footer">
+          <span>栖页 Chrome 扩展 v0.1.0</span>
+          <span>快捷键：⌘⇧S（macOS）/ Alt+Shift+S</span>
+        </footer>
+      </main>
+    </div>
+
+    <script src="shared.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+# Public demo only. Put your private Dashy config in conf.yml (gitignored).
+pageInfo:
+  title: 栖页
+  description: 常去的网站和家里的服务
+sections:
+  - name: 收件箱
+    items: []
+  - name: 开发工具
+    items:
+      - title: GitHub
+        url: https://github.com/
+        description: 代码托管与协作
+      - title: MDN Web Docs
+        url: https://developer.mozilla.org/
+        description: Web 开发文档

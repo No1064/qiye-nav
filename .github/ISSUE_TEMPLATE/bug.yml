@@ -1,0 +1,19 @@
+name: Bug report
+description: 报告可复现的问题
+title: '[Bug] '
+body:
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤与预期行为
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 版本、部署方式与浏览器
+  - type: textarea
+    id: logs
+    attributes:
+      label: 脱敏日志或截图
+      description: 不要上传密码、令牌、个人书签或 .env。

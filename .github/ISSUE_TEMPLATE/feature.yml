@@ -1,0 +1,10 @@
+name: Feature request
+description: 建议改进
+title: '[Feature] '
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: 使用场景与希望解决的问题
+    validations:
+      required: true

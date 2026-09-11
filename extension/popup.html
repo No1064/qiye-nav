@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <title>保存到栖页</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand" aria-label="栖页导航收藏">
+          <img class="brand-mark" src="assets/brand-mark.svg" alt="">
+          <span>栖页</span>
+        </div>
+        <div class="topbar-actions">
+          <button id="open-home" class="home-button" type="button" aria-label="打开导航主页">
+            <span aria-hidden="true">↗</span>
+            <span>打开主页</span>
+          </button>
+          <button id="open-options" class="icon-button" type="button" aria-label="打开设置" title="设置">
+            <span aria-hidden="true">•••</span>
+          </button>
+        </div>
+      </header>
+
+      <section id="page-card" class="page-card" aria-busy="true">
+        <div id="site-icon" class="site-icon" aria-hidden="true">⌁</div>
+        <div class="page-copy">
+          <p id="host" class="host">正在读取当前页面</p>
+          <p id="page-title" class="page-title">请稍候…</p>
+        </div>
+      </section>
+
+      <form id="save-form" class="form">
+        <div class="field">
+          <label for="title">标题</label>
+          <input id="title" name="title" type="text" maxlength="500" autocomplete="off" required>
+        </div>
+
+        <div class="field">
+          <label for="group">保存到</label>
+          <div class="select-wrap">
+            <select id="group" name="group" aria-describedby="group-hint"></select>
+          </div>
+          <p id="group-hint" class="sr-only">选择导航站中的目标分组</p>
+        </div>
+
+        <button id="save-button" class="primary-button" type="submit" disabled>
+          <span id="button-label">保存到导航站</span>
+          <span class="key-hint" aria-hidden="true">↵</span>
+        </button>
+      </form>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+
+      <footer class="footer">
+        <span id="connection" class="connection"><i></i>检查连接中</span>
+        <span id="queue" class="queue"></span>
+      </footer>
+    </main>
+
+    <script src="shared.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,76 @@
+name: ${COMPOSE_PROJECT_NAME:-personal-nav}
+
+services:
+  gateway:
+    image: ${CADDY_IMAGE:-caddy:2.10.2-alpine}
+    restart: unless-stopped
+    init: true
+    depends_on:
+      ingest:
+        condition: service_healthy
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${GATEWAY_PORT:-8080}:8080"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    read_only: true
+    tmpfs:
+      - /config
+      - /data
+    networks:
+      - edge
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  ingest:
+    image: ${QIYE_IMAGE:-qiye:0.2.0}
+    build:
+      context: ../services/ingest
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    user: "${NAV_UID:-1000}:${NAV_GID:-1000}"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      ADMIN_USERNAME: ${ADMIN_USERNAME:?Run ./scripts/set-admin-password.sh first}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:?Run ./scripts/set-admin-password.sh first}
+      ADMIN_COOKIE_SECURE: ${ADMIN_COOKIE_SECURE:-false}
+      AI_CONFIG_ENCRYPTION_KEY: ${AI_CONFIG_ENCRYPTION_KEY:?Run ./scripts/start.sh to generate the AI config encryption key}
+      # Dedicated extension credential. The management page uses an admin session cookie.
+      INGEST_TOKEN: ${INGEST_TOKEN:?Set INGEST_TOKEN in ops/.env}
+      CATALOG_PATH: /app/data/catalog.json
+      CATALOG_BACKUP_DIR: /app/data/backups
+      HEALTH_JOBS_PATH: /app/data/health-jobs.json
+      CATALOG_INIT_PATH: /migration/conf.example.yml
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      - ./data:/app/data
+      # Read-only rollback archive and first-run migration source. Never modified by Nav Server.
+      - ./dashy:/migration:ro
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${INGEST_PORT:-8787}:3000"
+    networks:
+      - edge
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          fetch('http://127.0.0.1:3000/health')
+          .then((response) => { if (!response.ok) process.exit(1); })
+          .catch(() => process.exit(1));
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+networks:
+  # Gateway ingress and Nav Server metadata egress share one bridge.
+  edge:
+    driver: bridge

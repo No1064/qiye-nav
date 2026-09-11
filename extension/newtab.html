@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <title>栖页 · 新标签页</title>
+    <script src="newtab-theme.js"></script>
+    <link rel="stylesheet" href="newtab.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#dashboard">跳到导航主页</a>
+
+    <header class="topbar" aria-label="页面顶部">
+      <div class="brand" aria-label="栖页">
+        <img class="brand-mark" src="assets/brand-mark.svg" alt="">
+        <strong id="brand-title">栖页</strong>
+      </div>
+      <div class="topbar-copy"><span aria-hidden="true"></span><p id="topbar-greeting">早上好</p></div>
+      <section class="search-section topbar-search" aria-label="搜索目录或网页">
+        <div id="search-wrap" class="search-wrap">
+          <form id="search-form" class="search-box" role="search">
+            <span class="search-symbol" aria-hidden="true"></span>
+            <label class="sr-only" for="search-input">搜索网址、描述、标签或网页</label>
+            <input id="search-input" type="search" autocomplete="off" spellcheck="false" placeholder="搜索网址或网络"
+              role="combobox" aria-autocomplete="list" aria-controls="search-results" aria-expanded="false">
+            <label class="sr-only" for="search-engine">网页搜索引擎</label>
+            <select id="search-engine" aria-label="网页搜索引擎">
+              <option value="duckduckgo">DuckDuckGo</option><option value="google">Google</option><option value="bing">Bing</option>
+            </select>
+            <kbd class="search-shortcut" aria-hidden="true">⌘ K</kbd>
+          </form>
+          <div id="search-panel" class="search-panel" hidden>
+            <div id="search-results" class="scroll-region" role="listbox" aria-label="搜索建议"></div>
+            <p class="search-help"><span><kbd>↑</kbd><kbd>↓</kbd> 选择</span><span><kbd>Enter</kbd> 打开</span><span><kbd>Ctrl+Enter</kbd> 网络搜索</span><span><kbd>Esc</kbd> 关闭</span></p>
+          </div>
+        </div>
+      </section>
+      <div class="topbar-right">
+        <span id="connection-badge" class="connection-badge" role="status" aria-live="polite"><i aria-hidden="true"></i><span id="connection-copy">正在连接</span></span>
+        <label class="theme-control" for="theme-select"><span class="sr-only">界面主题</span><select id="theme-select" aria-label="界面主题"><option value="auto">自动</option><option value="light">明亮</option><option value="dark">暗色</option></select></label>
+        <button id="refresh-button" class="icon-button" type="button" aria-label="刷新目录" title="刷新目录"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 5v6h-6"/></svg></button>
+        <button id="settings-button" class="icon-button" type="button" aria-label="打开显示与本地数据设置" title="显示与本地数据设置"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.08A1.7 1.7 0 0 0 8.95 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15 1.7 1.7 0 0 0 3.08 14H3v-4h.08A1.7 1.7 0 0 0 4.6 8.95a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3.08V3h4v.08A1.7 1.7 0 0 0 15.05 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.15.62.69 1.03 1.52 1.03H21v4h-.08A1.7 1.7 0 0 0 19.4 15Z"/></svg></button>
+        <button id="options-button" class="icon-button" type="button" aria-label="打开扩展设置" title="扩展设置"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></button>
+      </div>
+    </header>
+
+    <main id="dashboard" class="page-shell">
+      <section id="loading-state" class="state-panel" aria-live="polite" aria-busy="true">
+        <span class="skeleton wide"></span><span class="skeleton"></span><span class="skeleton"></span>
+      </section>
+      <section id="error-state" class="state-panel message-panel" hidden aria-live="assertive">
+        <h1>目录暂时不可用</h1><p id="error-message">请确认扩展设置里的 API 地址与授权。</p>
+        <div class="state-actions"><button id="error-retry" class="primary-button" type="button">重新载入</button><button id="error-options" class="quiet-button" type="button">打开扩展设置</button></div>
+      </section>
+      <section id="empty-state" class="state-panel message-panel" hidden>
+        <h1>目录还是空的</h1><p>从管理页添加网址后，这里会自动出现。</p><a id="empty-manage" class="primary-button" href="#">前往管理</a>
+      </section>
+
+      <div id="content" hidden>
+        <div class="desk-layout">
+          <aside class="group-sidebar" aria-label="分类导航">
+            <div class="group-filter-wrap">
+              <span class="group-filter-symbol" aria-hidden="true"></span>
+              <label class="sr-only" for="group-filter">按名称筛选分组</label>
+              <input id="group-filter" type="search" autocomplete="off" spellcheck="false" placeholder="筛选分类" aria-label="按名称筛选分组">
+            </div>
+            <button id="all-sites" class="all-sites-button" type="button" aria-pressed="false"><span class="all-sites-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="all-sites-label">全部网址</span><small id="all-sites-count"></small></button>
+            <nav id="catalog-groups" class="group-tree scroll-region" aria-label="网址分组"></nav>
+            <a class="manage-link" href="#" id="manage-link">管理网址与分组 <span aria-hidden="true">↗</span></a>
+          </aside>
+
+          <section class="main-column scroll-region">
+            <section id="frequent-section" class="frequent-section" aria-labelledby="frequent-title">
+              <header class="section-heading">
+                <div><p class="section-kicker">QUICK ACCESS</p><h1 id="frequent-title">今天从这里开始</h1></div>
+                <div class="section-actions"><small id="frequent-hint">按点击次数</small><button id="hide-frequent" class="quiet-button" type="button">隐藏</button><button id="clear-frequent" class="quiet-button" type="button">清空</button></div>
+              </header>
+              <div id="frequent-list" class="dock-grid"></div>
+            </section>
+
+            <section class="group-content" aria-live="polite">
+              <header class="section-heading group-current">
+                <div><p id="catalog-path" class="section-kicker">当前分组</p><h2 id="catalog-group-title">网址</h2></div>
+                <strong id="catalog-item-count"></strong>
+              </header>
+              <div id="catalog-items" class="card-grid"></div>
+            </section>
+
+            <section id="agent-shell" class="agent-shell" aria-label="栖页导航助手">
+              <div id="agent-panel" class="agent-panel" hidden aria-busy="false">
+                <header><span><img src="assets/brand-mark.svg" alt=""><b id="agent-name">导航助手</b></span><small id="agent-model"></small><button id="agent-history-toggle" class="quiet-button" type="button" aria-pressed="false">历史</button><button id="agent-new" class="quiet-button" type="button">新对话</button><button id="agent-collapse" class="quiet-button" type="button">收起</button></header>
+                <div id="agent-messages" class="agent-messages scroll-region" aria-live="polite"></div>
+                <div id="agent-history" class="agent-history scroll-region" hidden><div id="agent-history-list" role="list"></div></div>
+              </div>
+              <form id="agent-form" class="agent-composer" aria-busy="false">
+                <button id="agent-open" class="agent-open" type="button" aria-label="展开导航助手" title="展开导航助手" aria-controls="agent-panel" aria-expanded="false"><img src="assets/brand-mark.svg" alt="" aria-hidden="true"></button>
+                <label class="sr-only" for="agent-input">向导航助手提问</label>
+                <input id="agent-input" maxlength="1000" autocomplete="off" placeholder="随心输入" aria-describedby="agent-status">
+                <span id="agent-status" class="sr-only" role="status" aria-live="polite"></span>
+                <button id="agent-submit" type="submit" aria-label="发送问题" title="发送问题" disabled>↑</button>
+              </form>
+            </section>
+          </section>
+
+          <aside class="widget-rail scroll-region" aria-label="桌面小组件">
+            <section class="widget-card time-widget" aria-label="时间与日期">
+              <time id="clock" class="clock" aria-label="当前时间">--:--</time>
+              <p id="today" class="today-line" aria-label="今天"></p>
+              <p id="greeting" class="greeting">今天想去哪里？</p>
+            </section>
+            <section class="widget-card calendar-widget" aria-labelledby="calendar-title">
+              <header><h2 id="calendar-title">本月</h2><span id="calendar-month"></span></header>
+              <div class="calendar-week" aria-hidden="true"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+              <div id="calendar-grid" class="calendar-grid" aria-label="本月日历"></div>
+            </section>
+            <section class="widget-card family-widget" aria-labelledby="family-title">
+              <header><h2 id="family-title">家庭服务</h2><span>未检测</span></header>
+              <div id="family-service-list" class="family-service-list"></div>
+            </section>
+            <section class="widget-card health-widget" aria-labelledby="health-title">
+              <header><h2 id="health-title">目录健康</h2><a id="health-manage-link" href="#">查看 ↗</a></header>
+              <div class="health-list"><span><i aria-hidden="true"></i>重复项目<strong id="widget-dup-count">…</strong></span><span><i aria-hidden="true"></i>失效链接<strong id="widget-broken-count">…</strong></span><span><i aria-hidden="true"></i>待整理<strong id="widget-meta-count">…</strong></span></div>
+            </section>
+            <section class="widget-card memo-widget" aria-labelledby="memo-title">
+              <header><h2 id="memo-title">备忘</h2><span id="memo-status" role="status" aria-live="polite">仅保存在本机</span></header>
+              <label class="sr-only" for="memo-input">本地备忘</label>
+              <textarea id="memo-input" maxlength="2000" placeholder="写下稍后要处理的事"></textarea>
+            </section>
+            <section id="recent-section" class="widget-card recent-widget" aria-labelledby="recent-title" hidden>
+              <header><h2 id="recent-title">最近访问</h2><div class="section-actions"><button id="hide-recent" class="quiet-button" type="button">隐藏</button><button id="clear-recent" class="quiet-button" type="button">清空</button></div></header>
+              <div id="recent-list" class="dock-list"></div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <aside id="offline-status" class="offline-status" role="status" hidden>
+      <strong>离线只读</strong><span>正在显示 <time id="snapshot-time"></time> 保存的目录快照。</span>
+    </aside>
+
+    <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-title">
+      <form method="dialog">
+        <header class="dialog-heading"><div><h2 id="settings-title">显示与本地数据</h2><p>偏好、备忘和点击统计只保存在当前浏览器。</p></div><button class="close-button" value="cancel" aria-label="关闭设置">关闭</button></header>
+        <label class="setting-row"><span><strong>记录本页点击</strong><small>关闭后不再更新快捷入口与最近访问</small></span><input id="record-activity" type="checkbox"></label>
+        <label class="setting-row"><span><strong>显示快捷入口</strong><small>最多显示 6 个网址</small></span><input id="show-frequent" type="checkbox"></label>
+        <label class="setting-row"><span><strong>显示最近访问</strong><small>显示在右侧小组件区域</small></span><input id="show-recent" type="checkbox"></label>
+        <footer class="dialog-actions"><span class="dialog-actions-left"><button id="clear-activity" class="danger-button" type="button">清空点击记录</button><button id="clear-searches" class="quiet-button" type="button">清空最近搜索</button></span><button class="primary-button" value="done">完成</button></footer>
+      </form>
+    </dialog>
+
+    <script src="newtab-runtime.js"></script><script src="shared.js"></script><script src="newtab-core.js"></script><script src="newtab.js"></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "qiye-manage-ui",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "test": "node --test tests/*.test.cjs && npm run validate"
+  },
+  "license": "MIT"
+}

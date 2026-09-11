@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#f2f3ed">
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+    <title>管理网址 | 栖页</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <section id="login-view" class="unlock-view" aria-labelledby="login-title">
+      <div class="unlock-card glass-panel">
+        <a class="brand-link" href="/" aria-label="返回栖页导航首页">
+          <img class="brand-mark" src="/assets/brand-mark.svg" alt="">
+          <span>栖页</span>
+        </a>
+        <div class="unlock-copy">
+          <h1 id="login-title">登录网址管理</h1>
+          <p>使用管理员账号登录。会话由安全 Cookie 维持，密码不会保存在浏览器中。</p>
+        </div>
+        <form id="login-form" class="unlock-form">
+          <div class="field">
+            <label for="login-username">用户名</label>
+            <input id="login-username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+          </div>
+          <div class="field">
+            <label for="login-password">密码</label>
+            <div class="password-field">
+              <input id="login-password" name="password" type="password" autocomplete="current-password" required aria-describedby="login-error">
+              <button id="toggle-login-password" class="field-action" type="button" data-icon="eye"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-eye"></use></svg><span>显示</span></button>
+            </div>
+            <p id="login-error" class="field-error" role="alert"></p>
+          </div>
+          <button id="login-submit" class="button button-primary button-wide" type="submit">登录管理页</button>
+        </form>
+        <p class="security-note">连续登录失败会触发临时限速。使用完毕请主动退出。</p>
+      </div>
+    </section>
+
+    <div id="app" class="app" hidden>
+      <header class="topbar glass-panel">
+        <div class="topbar-start">
+          <a class="back-link" href="/"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-arrow-left"></use></svg><span>返回导航</span></a>
+          <div class="topbar-title">
+            <img class="brand-mark small" src="/assets/brand-mark.svg" alt="">
+            <strong>网址管理</strong>
+          </div>
+        </div>
+        <div class="search-box">
+          <label class="sr-only" for="global-search">搜索全部网址</label>
+          <svg class="icon search-icon" aria-hidden="true"><use href="./icons.svg#icon-search"></use></svg>
+          <input id="global-search" type="search" autocomplete="off" placeholder="搜索标题、网址、标签或分组">
+          <kbd>⌘ K</kbd>
+        </div>
+        <div class="topbar-actions">
+          <button id="transfer-button" class="button button-quiet" type="button">导入导出</button>
+          <button id="health-button" class="button button-quiet health-entry-button" type="button"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-check"></use></svg><span>书签检查</span></button>
+          <button id="ai-organize-button" class="button button-quiet ai-entry-button" type="button" data-icon="sparkles"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-sparkles"></use></svg><span>AI 整理</span></button>
+          <button id="add-item-top" class="button button-primary" type="button" data-icon="plus"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-plus"></use></svg><span>新增网址</span></button>
+          <button id="site-settings-button" class="button button-quiet" type="button" data-icon="settings"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-settings"></use></svg><span>站点设置</span></button>
+          <button id="logout-button" class="button button-quiet" type="button" data-icon="lock" aria-label="退出网址管理"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-lock"></use></svg><span>退出</span></button>
+        </div>
+      </header>
+
+      <div class="mobile-groups glass-panel">
+        <nav id="mobile-group-list" class="mobile-group-list" aria-label="选择网址分组"></nav>
+        <button id="mobile-add-group" class="button button-quiet" type="button" data-icon="plus"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-plus"></use></svg><span>新建分组</span></button>
+      </div>
+
+      <div class="workspace">
+        <aside class="group-sidebar glass-panel" aria-label="网址分组">
+          <div class="sidebar-heading">
+            <div>
+              <h2>分组</h2>
+              <p id="catalog-summary">正在载入</p>
+            </div>
+            <button id="add-group" class="square-button" type="button" aria-label="新建分组" title="新建分组"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-plus"></use></svg></button>
+          </div>
+          <nav id="group-list" class="group-list" aria-label="分组列表"></nav>
+          <p class="sidebar-help">可拖动分组排序，也可使用上移和下移按钮。</p>
+        </aside>
+
+        <main class="content" tabindex="-1">
+          <header class="content-header">
+            <div>
+              <h1 id="current-title">网址</h1>
+              <p id="current-summary">选择分组以查看网址</p>
+            </div>
+            <div id="group-actions" class="group-actions">
+              <button id="rename-group" class="button button-quiet" type="button">重命名</button>
+              <button id="delete-group" class="button button-quiet danger-text" type="button">删除分组</button>
+            </div>
+          </header>
+
+          <section id="bulk-toolbar" class="bulk-toolbar" aria-label="批量操作">
+            <label class="bulk-select-all"><input id="select-visible-items" type="checkbox"><span>全选当前结果</span></label>
+            <div id="bulk-actions" class="bulk-actions" hidden>
+              <strong id="bulk-selected-count">0 项已选</strong>
+              <label for="bulk-target-group">移动到</label>
+              <select id="bulk-target-group"></select>
+              <button id="bulk-move-items" class="button button-primary" type="button">批量移动</button>
+              <button id="clear-item-selection" class="button button-quiet" type="button">取消选择</button>
+            </div>
+          </section>
+
+          <div id="loading-state" class="loading-state" aria-label="正在加载网址">
+            <div class="skeleton-row"><i></i><span></span><b></b></div>
+            <div class="skeleton-row"><i></i><span></span><b></b></div>
+            <div class="skeleton-row"><i></i><span></span><b></b></div>
+          </div>
+
+          <section id="error-state" class="state-card" hidden>
+            <span class="state-symbol" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-alert-circle"></use></svg></span>
+            <h2>无法读取网址目录</h2>
+            <p id="error-message">请检查服务连接后重试。</p>
+            <button id="retry-catalog" class="button button-primary" type="button" data-icon="refresh"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-refresh"></use></svg><span>重新加载</span></button>
+          </section>
+
+          <section id="empty-state" class="state-card" hidden>
+            <span class="state-symbol" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-plus"></use></svg></span>
+            <h2 id="empty-title">这个分组还没有网址</h2>
+            <p id="empty-message">添加第一个网址，稍后可以继续调整分组和顺序。</p>
+            <button id="empty-add-item" class="button button-primary" type="button" data-icon="plus"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-plus"></use></svg><span>新增网址</span></button>
+          </section>
+
+          <div id="item-list" class="item-list" role="list"></div>
+        </main>
+      </div>
+
+      <div id="drawer-backdrop" class="drawer-backdrop" hidden></div>
+      <aside id="item-drawer" class="item-drawer glass-panel" aria-labelledby="drawer-title" aria-hidden="true" inert>
+        <header class="drawer-header">
+          <div>
+            <h2 id="drawer-title">新增网址</h2>
+            <p id="drawer-subtitle">保存公开网站或 NAS 服务。</p>
+          </div>
+          <button id="close-drawer" class="square-button" type="button" aria-label="关闭编辑面板"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-x"></use></svg></button>
+        </header>
+        <form id="item-form" class="drawer-form">
+          <input id="item-original-group" type="hidden">
+          <input id="item-id" type="hidden">
+
+          <div class="field">
+            <label for="item-url">远程地址</label>
+            <div class="input-action-row">
+              <input id="item-url" name="url" type="url" inputmode="url" required aria-describedby="url-help item-url-error">
+              <button id="preview-metadata" class="button button-secondary" type="button" data-icon="sparkles"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-sparkles"></use></svg><span>读取信息</span></button>
+            </div>
+            <p id="url-help" class="field-help">用于公网或 Tailscale 访问，也是普通网站的唯一地址。</p>
+            <p id="item-url-error" class="field-error" role="alert"></p>
+          </div>
+
+          <div id="metadata-preview" class="metadata-preview" hidden aria-live="polite">
+            <img id="metadata-icon" alt="">
+            <div>
+              <strong id="metadata-title">已读取网页信息</strong>
+              <p id="metadata-description"></p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="item-local-url">局域网地址 <span>可选</span></label>
+            <input id="item-local-url" name="localUrl" type="url" inputmode="url" aria-describedby="local-url-help item-local-url-error">
+            <p id="local-url-help" class="field-help">仅 NAS 或家庭服务填写，例如 http://192.168.1.20:5000。</p>
+            <p id="item-local-url-error" class="field-error" role="alert"></p>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="item-title">标题</label>
+              <input id="item-title" name="title" type="text" maxlength="180" required>
+            </div>
+            <div class="field">
+              <label for="item-group">分组</label>
+              <select id="item-group" name="groupId" required></select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="item-description">介绍 <span>可选</span></label>
+            <textarea id="item-description" name="description" rows="3" maxlength="500"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="item-icon">图标地址 <span>可选</span></label>
+            <input id="item-icon" name="icon" type="text" maxlength="1000" aria-describedby="icon-help">
+            <p id="icon-help" class="field-help">可使用 HTTPS 图片地址；留空时会自动显示网站图标。</p>
+          </div>
+
+          <div class="field">
+            <label for="item-tags">标签 <span>可选</span></label>
+            <input id="item-tags" name="tags" type="text" maxlength="500" placeholder="开发, 常用, 家庭服务">
+            <p class="field-help">多个标签使用逗号分隔。</p>
+          </div>
+
+          <footer class="drawer-actions">
+            <button id="delete-item-in-drawer" class="button button-quiet danger-text" type="button" data-icon="trash" hidden><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-trash"></use></svg><span>删除网址</span></button>
+            <div>
+              <button id="cancel-item" class="button button-secondary" type="button">取消</button>
+              <button id="save-item" class="button button-primary" type="submit">保存网址</button>
+            </div>
+          </footer>
+        </form>
+      </aside>
+    </div>
+
+    <dialog id="group-dialog" class="dialog glass-panel" aria-labelledby="group-dialog-title">
+      <form id="group-form" method="dialog">
+        <header class="dialog-header">
+          <h2 id="group-dialog-title">新建分组</h2>
+          <button class="square-button dialog-close" type="button" aria-label="关闭"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-x"></use></svg></button>
+        </header>
+        <div class="field">
+          <label for="group-name">分组名称</label>
+          <input id="group-name" type="text" maxlength="80" required>
+          <p id="group-name-error" class="field-error" role="alert"></p>
+        </div>
+        <div class="field">
+          <label for="group-parent">上级分组</label>
+          <select id="group-parent"><option value="">顶层分组</option></select>
+          <p class="field-help">选择公司或领域作为上级；项目作为二级分组。最多支持两级。</p>
+        </div>
+        <footer class="dialog-actions">
+          <button class="button button-secondary dialog-close" type="button">取消</button>
+          <button id="save-group" class="button button-primary" type="submit">保存</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog id="settings-dialog" class="dialog dialog-wide glass-panel" aria-labelledby="settings-dialog-title">
+      <form id="settings-form" method="dialog">
+        <header class="dialog-header">
+          <div>
+            <h2 id="settings-dialog-title">站点设置</h2>
+            <p>修改首页文案、默认搜索引擎和局域网入口判断规则。</p>
+          </div>
+          <button class="square-button settings-close" type="button" aria-label="关闭"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-x"></use></svg></button>
+        </header>
+        <div class="settings-dialog-body">
+          <section class="health-card"><h3>账号安全</h3><p>修改当前管理员密码，保存后所有已登录会话退出。</p><button id="open-password-dialog" class="button button-secondary" type="button">修改密码</button></section>
+          <div class="settings-form-grid">
+            <div class="field">
+              <label for="settings-title">站点名称</label>
+              <input id="settings-title" type="text" maxlength="80" required>
+            </div>
+            <div class="field">
+              <label for="settings-search-engine">默认搜索引擎</label>
+              <select id="settings-search-engine">
+                <option value="duckduckgo">DuckDuckGo</option>
+                <option value="google">Google</option>
+                <option value="bing">Bing</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="settings-subtitle">首页副标题</label>
+            <input id="settings-subtitle" type="text" maxlength="180" required>
+          </div>
+          <div class="field">
+            <label for="settings-local-hosts">局域网入口规则</label>
+            <textarea id="settings-local-hosts" rows="5" spellcheck="false" placeholder="192.168.1.10&#10;nav.home.arpa&#10;.home.local"></textarea>
+            <p class="field-help">每行填写一个主机名、IP 或域名后缀。通过这些入口访问首页时，NAS 条目默认使用局域网地址。</p>
+          </div>
+          <section class="ai-config-section" aria-labelledby="ai-config-title">
+          <div class="section-heading-row">
+            <div>
+              <p class="eyebrow">可选能力</p>
+              <h3 id="ai-config-title">AI 模型</h3>
+              <p>使用 DeepSeek 预设，或连接兼容 OpenAI Chat Completions 的服务。</p>
+            </div>
+            <span id="ai-config-status" class="status-chip">尚未配置</span>
+          </div>
+          <div class="settings-form-grid">
+            <div class="field">
+              <label for="ai-provider">服务类型</label>
+              <select id="ai-provider">
+                <option value="deepseek">DeepSeek 预设</option>
+                <option value="openai">OpenAI-compatible</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="ai-model">模型</label>
+              <input id="ai-model" type="text" maxlength="160" placeholder="deepseek-v4-flash">
+            </div>
+          </div>
+          <div class="field">
+            <label for="ai-base-url">Base URL</label>
+            <input id="ai-base-url" type="url" inputmode="url" spellcheck="false" placeholder="https://api.deepseek.com">
+          </div>
+          <div class="field">
+            <label for="ai-api-key">API Key <span>留空保留现有 Key</span></label>
+            <div class="input-action-row ai-key-row">
+              <input id="ai-api-key" type="password" autocomplete="new-password" spellcheck="false" placeholder="未设置">
+              <button id="test-ai-config" class="button button-secondary" type="button" data-icon="check"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-check"></use></svg><span>保存并测试</span></button>
+            </div>
+            <p id="ai-test-result" class="field-help" role="status"></p>
+          </div>
+          <div class="agent-config-fields" aria-labelledby="agent-config-title">
+            <div class="section-heading-row compact">
+              <div><p class="eyebrow">导航助手</p><h4 id="agent-config-title">身份与回答方式</h4></div>
+            </div>
+            <div class="field">
+              <label for="agent-name">助手名称</label>
+              <input id="agent-name" type="text" maxlength="80" required>
+            </div>
+            <div class="field">
+              <label for="agent-role-prompt">身份 / 角色提示词</label>
+              <textarea id="agent-role-prompt" rows="3" maxlength="2000" required></textarea>
+            </div>
+            <div class="field">
+              <label for="agent-capability-prompt">能力与回答风格提示词</label>
+              <textarea id="agent-capability-prompt" rows="3" maxlength="2000" required></textarea>
+              <p class="field-help">安全边界由服务端固定追加，不能在这里覆盖。</p>
+            </div>
+          </div>
+          </section>
+        </div>
+        <footer class="dialog-actions settings-dialog-actions">
+          <p id="settings-error" class="field-error settings-dialog-status" role="alert" tabindex="-1"></p>
+          <div class="settings-dialog-buttons">
+            <button class="button button-secondary settings-close" type="button">取消</button>
+            <button id="save-settings" class="button button-primary" type="submit">保存设置</button>
+          </div>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog id="ai-dialog" class="dialog dialog-ai glass-panel" aria-labelledby="ai-dialog-title">
+      <div class="ai-dialog-shell">
+        <header class="dialog-header ai-dialog-header">
+          <div>
+            <p class="eyebrow">建议先审阅，再写回</p>
+            <h2 id="ai-dialog-title">AI 整理中心</h2>
+            <p>AI 不会修改网址、局域网地址或图标，所有建议都由你逐项决定。</p>
+          </div>
+          <button id="close-ai-dialog" class="square-button" type="button" aria-label="关闭"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-x"></use></svg></button>
+        </header>
+
+        <nav id="ai-view-tabs" class="ai-view-tabs" aria-label="AI 整理视图">
+          <button type="button" data-ai-view="setup" aria-current="page">新建任务</button>
+          <button type="button" data-ai-view="current">当前任务</button>
+          <button type="button" data-ai-view="history">历史记录</button>
+        </nav>
+
+        <div id="ai-setup-view" class="ai-workspace">
+          <section class="ai-step-card">
+            <div class="ai-step-number">01</div>
+            <div class="ai-step-body">
+              <h3>选择整理范围</h3>
+              <div id="ai-item-scope-panel" class="health-card" hidden><strong>来自书签检查 · 仅补缺失资料</strong><p id="ai-item-scope-copy"></p><button id="clear-ai-item-scope" class="button button-quiet" type="button">改为按分组整理</button></div>
+              <div id="ai-group-scope-controls">
+              <div class="segmented-control" role="radiogroup" aria-label="整理范围">
+                <label><input type="radio" name="ai-scope" value="single" checked><span>一个分组</span></label>
+                <label><input type="radio" name="ai-scope" value="multiple"><span>多个分组</span></label>
+                <label><input type="radio" name="ai-scope" value="all"><span>全部分组</span></label>
+              </div>
+              <label id="ai-single-group-field" class="field" for="ai-single-group">
+                <span>来源分组（待整理书签）</span>
+                <select id="ai-single-group"></select>
+              </label>
+              <fieldset id="ai-multiple-groups" class="ai-choice-grid" hidden>
+                <legend class="sr-only">选择多个分组</legend>
+              </fieldset>
+              </div>
+              <p id="ai-scope-summary" class="ai-estimate">将分析 0 个网址</p>
+            </div>
+          </section>
+
+          <section class="ai-step-card">
+            <div class="ai-step-number">02</div>
+            <div class="ai-step-body">
+              <h3>选择建议字段</h3>
+              <div class="ai-choice-grid">
+                <label class="choice-row"><input type="checkbox" name="ai-field" value="title" checked><span><strong>标题</strong><small>精简和统一命名</small></span></label>
+                <label class="choice-row"><input type="checkbox" name="ai-field" value="groupId" checked><span><strong>分组</strong><small>调整到更合适的位置</small></span></label>
+                <label class="choice-row"><input type="checkbox" name="ai-field" value="description" checked><span><strong>介绍</strong><small>补充简明用途说明</small></span></label>
+                <label class="choice-row"><input type="checkbox" name="ai-field" value="tags" checked><span><strong>标签</strong><small>生成便于搜索的关键词</small></span></label>
+              </div>
+              <label id="ai-strategy-field" class="field" for="ai-group-strategy">
+                <span>分组整理方式</span>
+                <select id="ai-group-strategy">
+                  <option value="existing">保守整理 · 仅使用现有分组</option>
+                  <option value="reorganize" selected>平衡重组 · 拆分、合并并新建</option>
+                  <option value="rebuild">完全重建 · 按内容重新创建体系</option>
+                </select>
+              </label>
+              <label id="ai-destination-field" class="field" hidden><span>允许移入的现有分组</span><select id="ai-destination-scope"><option value="selected">所选范围内（含子分组及父级）</option><option value="all">全部现有分组（适合收件箱归类）</option></select><small>仅分析来源范围的书签，不新建分组；无合适位置时保留原位。建议逐项审核后应用。</small></label>
+              <div id="ai-grouping-options" class="ai-grouping-options">
+                <label class="field" for="ai-target-group-count"><span>目标分组数 <small>留空自动计算</small></span><input id="ai-target-group-count" type="number" min="1" max="100" placeholder="自动"></label>
+                <label class="field" for="ai-min-group-size"><span>最小容量 <small>留空默认 5</small></span><input id="ai-min-group-size" type="number" min="2" max="50" value="5" placeholder="默认 5"></label>
+                <label class="field" for="ai-max-group-size"><span>最大容量 <small>留空默认 40</small></span><input id="ai-max-group-size" type="number" min="5" max="200" value="40" placeholder="默认 40"></label>
+              </div>
+            </div>
+          </section>
+
+          <div id="ai-start-confirmation" class="ai-confirm-strip" hidden>
+            <div><strong>确认开始分析？</strong><p id="ai-confirm-summary"></p></div>
+            <div><button id="cancel-ai-start" class="button button-secondary" type="button">返回调整</button><button id="confirm-ai-start" class="button button-primary" type="button">确认启动</button></div>
+          </div>
+          <p id="ai-setup-error" class="field-error" role="alert"></p>
+          <footer class="ai-primary-actions">
+            <button id="prepare-ai-job" class="button button-primary" type="button" data-icon="sparkles"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-sparkles"></use></svg><span>生成整理建议</span></button>
+          </footer>
+        </div>
+
+        <div id="ai-job-view" class="ai-job-view" hidden>
+          <section class="ai-progress-card">
+            <div class="ai-progress-heading">
+              <div><p id="ai-job-phase" class="eyebrow">任务进度</p><h3 id="ai-job-status">准备中</h3></div>
+              <span id="ai-progress-ratio" class="metric-number">0 / 0</span>
+            </div>
+            <progress id="ai-progress" max="1" value="0"></progress>
+            <div class="ai-progress-meta"><span id="ai-progress-copy">正在等待模型</span><span><span id="ai-kept-count">0 项保持</span> · <span id="ai-failure-count">0 个失败批次</span></span></div>
+            <section id="ai-failure-details" class="ai-failure-details" hidden aria-live="polite">
+              <header><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-alert-circle"></use></svg><div><strong>任务失败原因</strong><p id="ai-failure-summary"></p></div></header>
+              <ol id="ai-failure-list"></ol>
+              <p id="ai-failure-advice" class="ai-failure-advice"></p>
+            </section>
+            <div class="ai-job-actions"><button id="toggle-ai-logs" class="button button-quiet" type="button">查看响应日志</button><button id="delete-ai-history" class="button button-quiet danger-text" type="button" hidden>删除记录</button><button id="pause-ai-job" class="button button-secondary" type="button" hidden>暂停任务</button><button id="resume-ai-job" class="button button-secondary" type="button" hidden>继续任务</button><button id="cancel-ai-job" class="button button-secondary danger-text" type="button">取消任务</button><button id="retry-ai-job" class="button button-secondary" type="button" data-icon="refresh" hidden><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-refresh"></use></svg><span>重试失败批次</span></button></div>
+          </section>
+
+          <section id="ai-log-section" class="ai-log-section" hidden>
+            <header><div><p class="eyebrow">模型响应</p><h3>逐批运行日志</h3></div><small>仅记录最终响应，不保存 API Key 或隐藏推理</small></header>
+            <div id="ai-log-list" class="ai-log-list"></div>
+          </section>
+
+          <section id="ai-review-section" class="ai-review-section" hidden>
+            <header class="ai-review-toolbar">
+              <div><p class="eyebrow">建议记录</p><h3 id="ai-suggestion-count">0 项待应用</h3></div>
+              <div><button id="select-all-suggestions" class="button button-quiet" type="button">全选</button><button id="clear-suggestions" class="button button-quiet" type="button">全不选</button></div>
+            </header>
+            <section id="ai-proposed-groups-section" class="ai-proposed-groups" hidden>
+              <header><strong>目标分组体系</strong><small id="ai-group-plan-summary">审核保留、新建、合并与退役关系</small></header>
+              <div id="ai-proposed-group-list"></div>
+            </section>
+            <div id="ai-suggestion-list" class="ai-suggestion-list"></div>
+            <p id="ai-apply-error" class="field-error" role="alert"></p>
+            <footer class="ai-review-actions"><button id="new-ai-job" class="button button-secondary" type="button">新建整理任务</button><button id="apply-ai-suggestions" class="button button-primary" type="button" data-icon="check"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-check"></use></svg><span>应用已选修改</span></button></footer>
+          </section>
+          <section id="ai-change-set-section" class="ai-log-section" hidden>
+            <header><div><p class="eyebrow">可恢复应用</p><h3>不可变变更集</h3></div><small>恢复会完整还原到该次应用前，并先备份当前目录</small></header>
+            <div id="ai-change-set-list" class="ai-log-list"></div>
+          </section>
+        </div>
+
+        <section id="ai-history-view" class="ai-history-view" hidden>
+          <header class="ai-history-header"><div><p class="eyebrow">整理档案</p><h3>历史记录</h3><p>任务、审核结果和应用记录会一直保留，直到你主动删除。</p></div><button id="refresh-ai-history" class="button button-secondary" type="button">刷新</button></header>
+          <div id="ai-history-list" class="ai-history-list"></div>
+          <div id="ai-history-empty" class="ai-empty-review" hidden><strong>还没有整理历史</strong><p>完成第一次 AI 整理后会显示在这里。</p></div>
+          <footer class="ai-history-footer"><button id="load-more-ai-history" class="button button-secondary" type="button" hidden>加载更多</button></footer>
+        </section>
+      </div>
+    </dialog>
+
+    <dialog id="health-dialog" class="dialog health-dialog glass-panel" aria-labelledby="health-dialog-title">
+      <div class="health-dialog-shell">
+        <header class="dialog-header health-dialog-header">
+          <div>
+            <p class="eyebrow">辅助工具</p>
+            <h2 id="health-dialog-title">书签检查</h2>
+            <p>检查重复网址、空分组和地址变化；资料补全交给 AI 整理。</p>
+          </div>
+          <button id="close-health-dialog" class="square-button" type="button" aria-label="关闭"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-x"></use></svg></button>
+        </header>
+
+        <nav id="health-tabs" class="ai-view-tabs" aria-label="书签检查功能">
+          <button type="button" data-health-view="scan" aria-current="page">开始检查</button>
+          <button type="button" data-health-view="results">检查结果</button>
+        </nav>
+
+        <section id="health-scan-view" class="health-view">
+          <div class="health-scan-grid">
+            <section class="health-card health-start-card">
+              <p class="eyebrow">新建扫描</p>
+              <h3>检查目录中的明确问题</h3>
+              <p>本地检查重复网址和空分组；远程检查额外检查地址状态。403 或登录限制不代表失效，检查不会自动删除书签。</p>
+              <div class="segmented-control health-scope-control" role="radiogroup" aria-label="扫描范围">
+                <label><input type="radio" name="health-scope" value="single" checked><span>一个分组</span></label>
+                <label><input type="radio" name="health-scope" value="multiple"><span>多个分组</span></label>
+                <label><input type="radio" name="health-scope" value="all"><span>全部分组</span></label>
+              </div>
+              <label id="health-single-group-field" class="field" for="health-single-group"><span>目标分组</span><select id="health-single-group"></select></label>
+              <fieldset id="health-multiple-groups" class="ai-choice-grid" hidden><legend class="sr-only">选择多个分组</legend></fieldset>
+              <p id="health-scope-summary" class="ai-estimate">将检查 0 个网址</p>
+              <div class="health-start-actions">
+                <button id="start-local-health-job" class="button button-secondary" type="button">仅本地检查</button>
+                <button id="start-remote-health-job" class="button button-primary" type="button" data-icon="refresh"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-refresh"></use></svg><span>远程检查</span></button>
+              </div>
+            </section>
+            <section class="health-card">
+              <div class="health-progress-heading">
+                <div><p class="eyebrow">当前任务</p><h3 id="health-job-status">暂无运行任务</h3></div>
+                <button id="refresh-health-jobs" class="button button-quiet" type="button">刷新</button>
+              </div>
+              <progress id="health-progress" max="1" value="0"></progress>
+              <p id="health-progress-copy" class="health-muted">完成后可以按问题、分组和域名审核。</p>
+              <div class="health-job-actions"><button id="pause-health-job" class="button button-secondary" type="button" hidden>暂停</button><button id="resume-health-job" class="button button-secondary" type="button" hidden>继续</button><button id="cancel-health-job" class="button button-quiet danger-text" type="button" hidden>取消任务</button></div>
+            </section>
+          </div>
+
+        </section>
+
+        <section id="health-results-view" class="health-view" hidden>
+          <div class="health-filter-grid" aria-label="筛选健康问题">
+            <label class="field" for="health-issue-filter"><span>问题类型</span><select id="health-issue-filter"><option value="">全部问题</option></select></label>
+            <label class="field" for="health-group-filter"><span>分组</span><select id="health-group-filter"><option value="">全部分组</option></select></label>
+            <label class="field" for="health-domain-filter"><span>域名</span><select id="health-domain-filter"><option value="">全部域名</option></select></label>
+            <label class="field" for="health-status-filter"><span>HTTP 状态</span><select id="health-status-filter"><option value="">全部状态</option></select></label>
+          </div>
+          <header class="health-section-header"><div><p class="eyebrow">扫描报告</p><h3 id="health-finding-summary">请先选择历史任务</h3></div><div class="health-selection-actions"><button id="recommend-filtered-health" class="button button-secondary" type="button">选择永久跳转修正</button><button id="select-filtered-health" class="button button-quiet" type="button">全选当前筛选</button><button id="clear-health-selection" class="button button-quiet" type="button">清除选择</button></div></header>
+          <div id="health-finding-list" class="health-finding-list"></div>
+          <details id="health-advisory-panel" class="health-card" hidden><summary id="health-advisory-summary">资料缺失与参考提示</summary>
+            <p class="health-muted">缺失标题、介绍可选中后交给 AI 补全。AI 不修改图标；同名或相似网址仅供参考。</p>
+            <div id="health-advisory-list" class="health-finding-list"></div>
+            <button id="health-to-ai" class="button button-secondary" type="button">将选中缺失项交给 AI</button>
+          </details>
+          <p id="health-apply-error" class="field-error" role="alert"></p>
+          <div id="health-apply-preview" class="health-apply-preview" hidden>
+            <div><strong>确认应用已选处理？</strong><p id="health-apply-summary"></p></div>
+            <div><button id="cancel-health-apply" class="button button-secondary" type="button">返回审核</button><button id="confirm-health-apply" class="button button-primary" type="button">确认应用</button></div>
+          </div>
+          <details id="health-change-set-panel" class="health-card health-change-set-panel" hidden>
+            <summary>恢复最近一次处理</summary><div><p id="health-change-set-summary" class="health-muted"></p></div>
+            <button id="restore-health-change-set" class="button button-secondary" type="button">撤销最近一次处理</button>
+          </details>
+          <footer class="health-review-actions"><button id="preview-health-actions" class="button button-primary" type="button">预览已选动作</button></footer>
+        </section>
+
+          <details class="health-card health-history-card">
+            <summary>历史检查记录</summary>
+            <div id="health-history-list" class="health-history-list"><p class="health-muted">正在读取……</p></div>
+          </details>
+
+      </div>
+    </dialog>
+
+    <dialog id="transfer-dialog" class="dialog health-dialog glass-panel" aria-labelledby="transfer-title">
+      <div class="health-dialog-shell">
+        <header class="dialog-header"><div><h2 id="transfer-title">导入导出</h2><p>备份或迁移书签，导入前先检查预览。</p></div><button id="close-transfer-dialog" class="square-button" type="button" aria-label="关闭">×</button></header>
+        <section id="health-transfer-view" class="health-view">
+          <div class="health-transfer-grid">
+            <section class="health-card">
+              <p class="eyebrow">安全备份</p><h3>导出当前目录</h3>
+              <p>HTML 可重新导入 Chrome、Edge 和 Firefox；JSON 保留标签、介绍与完整分组数据。</p>
+              <div class="health-export-actions"><button id="export-html" class="button button-secondary" type="button">导出 HTML</button><button id="export-json" class="button button-secondary" type="button">导出 JSON</button></div>
+            </section>
+            <section class="health-card">
+              <p class="eyebrow">增量导入</p><h3>先预览，再写入</h3>
+              <div class="field"><span>书签文件</span><div class="import-file-picker"><input id="import-file" class="sr-only" type="file" accept=".html,.htm,.json,text/html,application/json"><label class="button button-secondary" for="import-file">选择文件</label><span id="import-file-name" class="health-muted">未选择文件</span></div></div>
+              <label id="json-restore-option" class="choice-row danger-choice" hidden><input id="json-restore" type="checkbox"><span><strong>将 JSON 作为完整备份恢复</strong><small>会替换当前目录；不勾选则按增量方式导入。</small></span></label>
+              <p class="health-muted">预览只统计新增、重复、冲突和新分组，不会写入目录。</p>
+              <button id="preview-import" class="button button-primary" type="button">生成导入预览</button>
+              <p id="import-error" class="field-error" role="alert"></p>
+            </section>
+          </div>
+          <section id="import-preview-panel" class="health-card import-preview-panel" hidden>
+            <header class="health-section-header"><div><p class="eyebrow">Dry-run 结果</p><h3 id="import-preview-summary">导入预览</h3></div></header>
+            <div id="import-preview-details" class="import-preview-details"></div>
+            <footer class="health-review-actions"><button id="apply-import" class="button button-primary" type="button">确认增量导入</button></footer>
+          </section>
+        </section>      </div>
+    </dialog>
+
+    <dialog id="password-dialog" class="dialog glass-panel" aria-labelledby="password-title">
+      <form id="password-form">
+        <header class="dialog-header"><h2 id="password-title">修改管理员密码</h2><button id="close-password-dialog" class="square-button" type="button" aria-label="关闭">×</button></header>
+        <p>验证当前密码后设置新密码。保存成功后，需要重新登录。</p>
+        <label class="field"><span>当前密码</span><input id="current-password" type="password" autocomplete="current-password" required maxlength="1024"></label>
+        <label class="field"><span>新密码</span><input id="new-password" type="password" autocomplete="new-password" required minlength="12" maxlength="1024"><small>至少 12 个字符，不能与当前密码相同。</small></label>
+        <label class="field"><span>再次输入新密码</span><input id="confirm-password" type="password" autocomplete="new-password" required minlength="12" maxlength="1024"></label>
+        <p id="password-error" class="field-error" role="alert"></p>
+        <footer class="dialog-actions"><button id="save-password" class="button button-primary" type="submit">保存新密码并退出</button></footer>
+      </form>
+    </dialog>
+
+    <dialog id="confirm-dialog" class="dialog glass-panel" aria-labelledby="confirm-title">
+      <form id="confirm-form" method="dialog">
+        <header class="dialog-header">
+          <h2 id="confirm-title">确认操作</h2>
+          <button class="square-button confirm-cancel" type="button" aria-label="关闭"><svg class="icon" aria-hidden="true"><use href="./icons.svg#icon-x"></use></svg></button>
+        </header>
+        <p id="confirm-message" class="confirm-message"></p>
+        <div id="group-delete-options" class="group-delete-options" hidden>
+          <label class="choice-row">
+            <input type="radio" name="delete-mode" value="move" checked>
+            <span>将网址迁移到其他分组</span>
+          </label>
+          <label class="field nested-field" for="delete-target-group">
+            <span>迁移到</span>
+            <select id="delete-target-group"></select>
+          </label>
+          <label class="choice-row danger-choice">
+            <input type="radio" name="delete-mode" value="delete">
+            <span>同时删除分组中的全部网址</span>
+          </label>
+        </div>
+        <footer class="dialog-actions">
+          <button class="button button-secondary confirm-cancel" type="button">取消</button>
+          <button id="confirm-submit" class="button button-danger" type="submit">确认删除</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <div id="toast-region" popover="manual" class="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="./core.js"></script>
+    <script src="./runtime.js"></script>
+    <script src="./api.js"></script>
+    <script src="./ui.js"></script>
+    <script src="./session.js"></script>
+    <script src="./catalog.js"></script>
+    <script src="./ai-jobs.js"></script>
+    <script src="./health.js"></script>
+    <script src="./events.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

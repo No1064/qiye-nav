@@ -1,0 +1,28 @@
+{
+	admin off
+	auto_https off
+}
+
+:8080 {
+	encode zstd gzip
+
+	header {
+		-Server
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), geolocation=(), microphone=()"
+		X-Robots-Tag "noindex, nofollow"
+	}
+
+	@private path /manage* /api/v1/admin*
+	header @private >Cache-Control "no-store"
+
+	reverse_proxy ingest:3000 {
+		health_uri /health
+		health_interval 20s
+		health_timeout 3s
+		health_status 200
+		lb_try_duration 3s
+	}
+}

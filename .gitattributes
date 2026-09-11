@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.zip binary
+.local-development-notes export-ignore
+ops/dashy/conf.yml export-ignore
+design export-ignore

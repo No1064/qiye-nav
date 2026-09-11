@@ -1,0 +1,4 @@
+.env
+dashy/config-backups/
+# Runtime catalog, encrypted AI configuration, short-lived AI jobs, and backups.
+data/
