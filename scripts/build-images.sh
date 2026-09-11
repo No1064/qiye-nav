@@ -7,7 +7,7 @@ mkdir -p releases
 for arch in amd64 arm64; do
   docker buildx build --platform "linux/$arch" --load --build-arg "VERSION=$VERSION" -t "qiye:$VERSION" services/ingest
   docker pull --platform "linux/$arch" caddy:2.10.2-alpine
-  docker save "qiye:$VERSION" caddy:2.10.2-alpine | gzip > "releases/qiye-$VERSION-images-$arch.tar.gz"
+  docker save --platform "linux/$arch" "qiye:$VERSION" caddy:2.10.2-alpine | gzip > "releases/qiye-$VERSION-images-$arch.tar.gz"
 done
 python3 - <<'PY'
 from pathlib import Path
