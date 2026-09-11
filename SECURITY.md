@@ -2,7 +2,7 @@
 
 当前维护版本为最新的 0.2.x；建议升级到最新补丁版本。
 
-请通过 [GitHub 私密漏洞报告](https://github.com/No1064/qiye/security/advisories/new) 报告漏洞。若入口不可用，请先创建不包含利用细节的 Issue，请求私密联系渠道。不要在公开 Issue 中上传 `.env`、目录数据、密码哈希、令牌或 AI 配置。
+请通过 [GitHub 私密漏洞报告](https://github.com/No1064/qiye-nav/security/advisories/new) 报告漏洞。若入口不可用，请先创建不包含利用细节的 Issue，请求私密联系渠道。不要在公开 Issue 中上传 `.env`、目录数据、密码哈希、令牌或 AI 配置。
 
 ## 部署边界
 

@@ -1,4 +1,4 @@
-# 栖页 · Qiye
+# 栖页导航 · Qiye Nav
 
 自托管的个人导航站：统一管理公开网站、NAS 入口和浏览器书签，使用 AI 辅助归类与补充资料。
 
@@ -22,8 +22,8 @@
 需要 Docker、Docker Compose v2、Bash 和 curl。Windows 请使用 WSL2；macOS 可使用 Docker Desktop 或 OrbStack。使用有 Docker 权限的普通用户操作。
 
 ```bash
-git clone https://github.com/No1064/qiye.git
-cd qiye
+git clone https://github.com/No1064/qiye-nav.git
+cd qiye-nav
 ./ops/scripts/set-admin-password.sh
 ./ops/scripts/start.sh
 ```
@@ -45,7 +45,7 @@ docker pull "$QIYE_IMAGE"
 ./ops/scripts/start.sh --prebuilt
 ```
 
-保持 `QIYE_IMAGE` 环境变量，或将它写入本地 `ops/.env`。镜像支持 `linux/amd64` 和 `linux/arm64`。离线镜像包可从 [Releases](https://github.com/No1064/qiye/releases) 下载，使用 `docker load -i 文件名.tar.gz` 导入；完整说明见[发布文档](docs/releasing.md)。
+保持 `QIYE_IMAGE` 环境变量，或将它写入本地 `ops/.env`。镜像支持 `linux/amd64` 和 `linux/arm64`。离线镜像包可从 [Releases](https://github.com/No1064/qiye-nav/releases) 下载，使用 `docker load -i 文件名.tar.gz` 导入；完整说明见[发布文档](docs/releasing.md)。
 
 ## 浏览器扩展
 
