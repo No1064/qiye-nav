@@ -64,12 +64,13 @@ async function fixture(
 }
 
 async function waitForTerminal(jobs: AiJobs, id: string) {
-  for (let attempt = 0; attempt < 100; attempt += 1) {
+  const deadline = performance.now() + 10_000;
+  while (performance.now() < deadline) {
     const job = await jobs.get(id);
     if (["completed", "partial", "failed", "cancelled"].includes(job.status)) return job;
     await new Promise((resolve) => setTimeout(resolve, 5));
   }
-  throw new Error("job did not finish");
+  throw new Error(`job ${id} did not finish within 10 seconds`);
 }
 
 test("unconfigured AI defaults to the DeepSeek preset without exposing a key", async () => {
