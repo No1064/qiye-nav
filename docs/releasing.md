@@ -7,6 +7,6 @@
 5. 提交修改并推送 `v<版本>` 标签。GitHub Actions 验证代码并向 `ghcr.io/<仓库所有者>/qiye` 发布多架构镜像。
 6. 创建 GitHub Release，上传源码、扩展 zip、镜像包与校验和。首次创建 GHCR 包后，维护者需确认包的公开可见性，并验证匿名拉取。
 
-Fork 发布需要根据新仓库更新 README 链接和 Dockerfile 的 source 标签。构建镜像的工作流使用仓库 GITHUB_TOKEN，不需要在源码中配置 Docker 密码。
+Fork 发布需要根据新仓库更新 README 链接和 Dockerfile 的 source 标签；镜像名称由 images.yml 显式设为 qiye，仓库重命名不会改变已有镜像安装地址。构建镜像的工作流使用仓库 GITHUB_TOKEN，不需要在源码中配置 Docker 密码。
 
 `release-manifest.json` 控制源码导出范围。不要以原始工作目录或 `git archive` 替代导出检查，历史和未跟踪文件可能分别包含私人数据或必要源码。

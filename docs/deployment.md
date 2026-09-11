@@ -5,8 +5,8 @@
 安装 Docker Engine / Desktop 和 Compose v2。使用有 Docker 权限的普通用户操作：
 
 ```sh
-git clone https://github.com/No1064/qiye.git
-cd qiye/ops
+git clone https://github.com/No1064/qiye-nav.git
+cd qiye-nav/ops
 ./scripts/set-admin-password.sh
 ./scripts/start.sh
 ```
@@ -65,3 +65,13 @@ cd qiye-0.2.0/ops
 - `docker compose --env-file .env down` 停止，不会删除绑定挂载的数据目录。
 
 已有 Dashy 用户可将自己的 `conf.yml` 放在 `ops/dashy/` 后运行迁移脚本；已有 catalog 时不会默认覆盖。首次迁移前应备份，个人配置不得提交到 Git。
+
+## Caddy 网关的作用
+
+`caddy:2.10.2-alpine` 是轻量的 Caddy 反向代理镜像，作为 Compose 中的 gateway 服务运行：
+
+- 监听 8080，把首页、后台和 API 请求转发给 ingest:3000。
+- 提供 gzip / zstd 压缩、通用安全响应头，以及管理页面的禁止缓存响应头。
+- 检查应用健康状态。当前配置关闭自动 HTTPS，外部 HTTPS 需单独配置。
+
+应用自身能提供静态页面和 API；若已有 Nginx、Caddy 或 NAS 反向代理，可自行改为直接代理应用端口并补齐所需响应头。默认部署依赖 gateway，直接删除该容器会使 8080 入口失效。

@@ -1,4 +1,4 @@
-# Qiye
+# Qiye Nav · 栖页导航
 
 A self-hosted bookmark manager and browser start page, with optional AI-assisted organization.
 
@@ -11,8 +11,8 @@ Qiye combines a two-level bookmark catalog, search, light/dark themes, NAS publi
 Prerequisites: Docker, Compose v2, Bash and curl. On Windows use WSL2. Run as a non-root user with Docker access.
 
 ```bash
-git clone https://github.com/No1064/qiye.git
-cd qiye
+git clone https://github.com/No1064/qiye-nav.git
+cd qiye-nav
 ./ops/scripts/set-admin-password.sh
 ./ops/scripts/start.sh
 ```
