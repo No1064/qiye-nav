@@ -1,5 +1,39 @@
 {
-  "include": ["README.md", "README.en.md", "LICENSE", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md", "CHANGELOG.md", "THIRD_PARTY_NOTICES.md", "package.json", "release-manifest.json", ".gitignore", ".gitattributes", ".editorconfig", ".nvmrc", ".github", "docs", "scripts", "extension", "services", "ops"],
-  "excludeNames": ["node_modules", "dist", "data", "coverage", "__pycache__", ".git", ".DS_Store"],
-  "excludePaths": ["ops/dashy/conf.yml"]
+  "include": [
+    "README.md",
+    "README.en.md",
+    "LICENSE",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "SECURITY.md",
+    "CHANGELOG.md",
+    "THIRD_PARTY_NOTICES.md",
+    "package.json",
+    "release-manifest.json",
+    ".gitignore",
+    ".gitattributes",
+    ".editorconfig",
+    ".nvmrc",
+    ".github",
+    "docs",
+    "scripts",
+    "extension",
+    "services",
+    "ops"
+  ],
+  "excludeNames": [
+    "node_modules",
+    "dist",
+    "data",
+    "coverage",
+    "__pycache__",
+    ".git",
+    ".DS_Store",
+    "backups",
+    "config-backups",
+    "user-data"
+  ],
+  "excludePaths": [
+    "ops/dashy/conf.yml"
+  ]
 }
