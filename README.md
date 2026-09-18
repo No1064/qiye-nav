@@ -2,7 +2,7 @@
 
 自托管的个人导航站：统一管理公开网站、NAS 入口和浏览器书签，使用 AI 辅助归类与补充资料。
 
-[English](README.en.md) · [部署文档](docs/deployment.md) · [开发指南](CONTRIBUTING.md) · [API](docs/api.md) · [版本记录](CHANGELOG.md) · [MIT](LICENSE)
+[English](README.en.md) · [部署文档](docs/deployment.md) · [配置参考](docs/configuration.md) · [架构说明](docs/architecture.md) · [开发指南](CONTRIBUTING.md) · [API](docs/api.md) · [版本记录](CHANGELOG.md) · [MIT](LICENSE)
 
 ## 功能
 
