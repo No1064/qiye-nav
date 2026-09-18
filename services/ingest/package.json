@@ -18,7 +18,7 @@
     "password": "node dist/password.js hash"
   },
   "dependencies": {
-    "yaml": "^2.8.1"
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
