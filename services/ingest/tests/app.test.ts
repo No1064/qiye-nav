@@ -237,16 +237,19 @@ async function withApp(
   fetchMetadata: (url: string) => Promise<Metadata>,
   run: (baseUrl: string, admin: TestAdminSession) => Promise<void>,
   manageDir?: string,
-  extra?: Partial<Pick<AppDependencies, "aiConfigStore" | "aiJobs" | "aiClient" | "healthJobs" | "saveAdminPasswordHash" | "iconCache">>,
+  extra?: Partial<Pick<AppDependencies, "aiConfigStore" | "aiJobs" | "aiClient" | "healthJobs" | "saveAdminPasswordHash" | "iconCache">> & {
+    config?: Partial<AppConfig>;
+  },
 ): Promise<void> {
+  const { config: configOverride, ...dependencies } = extra ?? {};
   const server = createServer(
     createApp({
-      config,
+      config: { ...config, ...configOverride },
       store: dashy,
       fetchMetadata,
       ...(manageDir ? { manageDir } : {}),
       logger: { info() {}, error() {} },
-      ...extra,
+      ...dependencies,
     }),
   );
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -345,6 +348,37 @@ test("bookmark creation extracts metadata and replays an idempotent response", a
       assert.equal(dashy.items.length, 1);
       assert.equal(dashy.items[0]?.url, "https://example.com/docs#intro");
     },
+  );
+});
+
+test("an extension origin is trusted even with an empty allow list", async () => {
+  await withApp(
+    new FakeDashy(),
+    async (url) => ({ finalUrl: url }),
+    async (baseUrl) => {
+      const extensionOrigin = "chrome-extension://safari-extension-id";
+      const preflight = await fetch(`${baseUrl}/api/v1/groups`, {
+        method: "OPTIONS",
+        headers: { origin: extensionOrigin, "access-control-request-method": "GET" },
+      });
+      assert.equal(preflight.status, 204);
+      assert.equal(preflight.headers.get("access-control-allow-origin"), extensionOrigin);
+
+      const read = await fetch(`${baseUrl}/api/v1/groups`, {
+        headers: { origin: extensionOrigin, authorization: "Bearer ingest-secret" },
+      });
+      assert.equal(read.status, 200);
+      assert.equal(read.headers.get("access-control-allow-origin"), extensionOrigin);
+
+      const website = await fetch(`${baseUrl}/api/v1/groups`, {
+        method: "OPTIONS",
+        headers: { origin: "https://other-site.example", "access-control-request-method": "GET" },
+      });
+      assert.equal(website.status, 403);
+      assert.equal(website.headers.get("access-control-allow-origin"), null);
+    },
+    undefined,
+    { config: { corsAllowedOrigins: new Set<string>() } },
   );
 });
 

@@ -33,6 +33,22 @@ Chrome 没有“点击已有书签”的事件，因此扩展不能可靠监听�
 
 扩展没有打包步骤。修改文件后，在 `chrome://extensions` 中点击扩展卡片上的刷新按钮即可。
 
+## 在 Safari 中使用
+
+同一份目录也能在 Safari 中加载（设置 → 高级 → 开发者 → 允许未签名的扩展），但有三处与 Chrome 的本质差异，扩展已按此实现：
+
+- Safari 对扩展后台 `fetch` 强制做 CORS 检查，且与 host 权限无关。服务端因此始终放行 `chrome-extension://` 来源，`CORS_ALLOWED_ORIGINS` 留空不影响连接。
+- Safari 上 `chrome.permissions` 的运行时调用会挂起不返回，`chrome.bookmarks` 也不存在。扩展在 Safari 下跳过运行时权限申请与检查，并给所有权限调用加 3 秒超时，避免设置页永久停在“检查中”。
+- Safari 可能把 `localhost` 解析为 IPv6 的 `::1`，而服务默认只监听 IPv4 回环，因此扩展会把 API 地址中的 `localhost` 规范化为 `127.0.0.1`。
+
+开发者模式加载的未签名扩展在重启 Safari 后会消失，这是 Safari 的机制而非缺陷。需要常驻安装时用 Xcode 转换工程再签名构建：
+
+```sh
+xcrun safari-web-extension-converter extension
+```
+
+转换只读取本目录并生成独立工程，不影响 Chrome 使用的扩展源码。
+
 ## 新标签页
 
 默认不接管。在设置页开启“接管新标签页”后，浏览器每个新标签页都会显示栖页仪表盘：

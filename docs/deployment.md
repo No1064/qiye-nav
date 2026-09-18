@@ -11,7 +11,7 @@ cd qiye-nav/ops
 ./scripts/start.sh
 ```
 
-首次设置会创建 `ops/.env`。密码隐藏输入，至少 12 字节；没有通用的 admin 默认密码。启动脚本生成设备令牌和 AI 加密密钥，新实例使用 `ops/dashy/conf.example.yml` 的示例目录。网页为 `http://127.0.0.1:8080`，管理后台 `/manage/`。
+首次设置会创建 `ops/.env`。密码隐藏输入，至少 12 字节；没有通用的 admin 默认密码。启动脚本生成采集令牌和 AI 加密密钥，新实例使用 `ops/dashy/conf.example.yml` 的示例目录。网页为 `http://127.0.0.1:8080`，管理后台 `/manage/`。
 
 ## 预构建镜像
 
@@ -40,7 +40,7 @@ cd qiye-0.2.0/ops
 
 ## 配置
 
-完整配置示例见 [`ops/.env.example`](../ops/.env.example)。
+完整变量清单（含默认值、取值范围与留空后果）见 [配置参考](configuration.md)；示例文件见 [`ops/.env.example`](../ops/.env.example)。
 
 | 变量 | 用途 |
 | --- | --- |
@@ -48,10 +48,11 @@ cd qiye-0.2.0/ops
 | `GATEWAY_PORT` / `INGEST_PORT` | 默认 8080 / 8787 |
 | `BIND_ADDRESS` | 默认 127.0.0.1；局域网可设主机地址 |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD_HASH` | 初始化管理员凭证，由脚本设置 |
-| `INGEST_TOKEN` | 扩展设备写入凭证，不要公开 |
-| `AI_CONFIG_ENCRYPTION_KEY` | AI 配置加密密钥，必须妥善备份 |
+| `INGEST_TOKEN` | 扩展采集用的共享 Bearer token，不要公开；它不是设备级凭证，无法单独吊销某台设备 |
+| `AI_CONFIG_ENCRYPTION_KEY` | AI 配置加密密钥，必须妥善备份；丢失后已保存的服务商配置不可恢复 |
 | `ADMIN_COOKIE_SECURE` | HTTPS 部署设为 true |
-| `CORS_ALLOWED_ORIGINS` | 允许的跨域来源，逗号分隔；留空使用服务默认策略 |
+| `CORS_ALLOWED_ORIGINS` | 逗号分隔的网站 origin；**留空即禁止网站跨域读取**，扩展 origin 始终放行 |
+| `ALLOW_LOCAL_URLS` | 默认 true，允许保存 NAS 私有地址；不需要时设为 false |
 
 公网访问需自己配置域名与 HTTPS 反向代理；本项目默认网关不自动申请证书。公开目录不要求登录，请先阅读 [安全政策](../SECURITY.md)。
 

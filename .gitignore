@@ -16,6 +16,11 @@ services/ingest/data/
 .local-development-notes/
 ops/dashy/conf.yml
 releases/
+
+# Catalog exports from the manage page: real bookmarks plus private NAS URLs
+qiye-bookmarks-*.json
+qiye-bookmarks-*.html
+qipage-bookmarks.*
 *.tar
 *.tar.gz
 *.oci.tar

@@ -194,9 +194,25 @@ function requestVersion(request: IncomingMessage): string {
   return value.toLowerCase();
 }
 
+// A page cannot forge its own Origin, and the catalog is already readable by any origin-less
+// request, so trusting the extension scheme adds no exposure. Safari enforces CORS on extension
+// background fetches regardless of host_permissions, which an empty allow list would break.
+function isExtensionOrigin(origin: string): boolean {
+  let protocol: string;
+  try {
+    protocol = new URL(origin).protocol;
+  } catch {
+    return false;
+  }
+  return protocol === "chrome-extension:" || protocol === "moz-extension:";
+}
+
 function allowedCorsHeaders(origin: string | undefined, config: AppConfig): Record<string, string> {
   if (!origin) return {};
-  if (!config.corsAllowedOrigins.has("*") && !config.corsAllowedOrigins.has(origin)) return {};
+  const allowed = config.corsAllowedOrigins.has("*")
+    || config.corsAllowedOrigins.has(origin)
+    || isExtensionOrigin(origin);
+  if (!allowed) return {};
   return {
     "access-control-allow-origin": config.corsAllowedOrigins.has("*") ? "*" : origin,
     "access-control-expose-headers": "ETag",
